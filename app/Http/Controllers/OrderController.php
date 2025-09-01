@@ -31,13 +31,15 @@ class OrderController extends Controller
         $order = Order::create([
             'customer_id' => $data['customer_id'],
             'status' => 'pending',
-            'total_price' => 0, // optional: calculate from products
+            'total_amount' => 0, // optional: calculate from products
         ]);
 
-        // Attach products with quantity to pivot table
-        foreach ($data['products'] as $product) {
-            $order->products()->attach($product['id'], [
-                'quantity' => $product['quantity']
+        // Attach products with quantity and price to pivot table
+        foreach ($data['products'] as $productData) {
+            $product = \App\Models\Product::find($productData['id']);
+            $order->products()->attach($productData['id'], [
+                'quantity' => $productData['quantity'],
+                'price' => $product->price
             ]);
         }
 

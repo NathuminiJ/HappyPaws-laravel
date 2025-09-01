@@ -27,9 +27,9 @@ class AuthController extends Controller
         $token = $customer->createToken('customer-token')->plainTextToken;
 
         return response()->json([
-            'customer' => $customer,
+            'user' => $customer,   // ✅ standard key
             'token' => $token
-        ]);
+        ], 201); // ✅ return 201 Created
     }
 
     // Login Customer
@@ -44,9 +44,9 @@ class AuthController extends Controller
         $token = $customer->createToken('customer-token')->plainTextToken;
 
         return response()->json([
-            'customer' => $customer,
+            'user' => $customer,   // ✅ standard key
             'token' => $token
-        ]);
+        ], 200);
     }
 
     // Login Admin
@@ -61,8 +61,8 @@ class AuthController extends Controller
         $token = $admin->createToken('admin-token')->plainTextToken;
 
         return response()->json([
-            'admin' => $admin,
+            'user' => $admin,   // ✅ standard key
             'token' => $token
-        ]);
+        ], 200);
     }
 }
