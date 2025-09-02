@@ -15,7 +15,14 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @can('viewAdminDashboard', Auth::user())
+   `                 <x-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">
+                         {{ __('Admin Dashboard') }}
+                     </x-nav-link>
+@endcan     
+
                 </div>
+
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">

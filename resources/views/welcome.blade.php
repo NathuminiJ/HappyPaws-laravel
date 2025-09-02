@@ -6,6 +6,13 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <x-app-layout>
+    <h1 class="text-2xl font-bold p-4">Product Search</h1>
+    <livewire:product-search />
+    </x-app-layout>
+
+        
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
