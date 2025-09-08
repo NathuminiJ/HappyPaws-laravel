@@ -1,0 +1,304 @@
+{
+  "info": {
+    "name": "HappyPaws API (Local)",
+    "_postman_id": "c4b7a4f0-aaaa-bbbb-cccc-ddddeeeeffff",
+    "description": "Postman collection to test HappyPaws API (Laravel 11 + Sanctum)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "customer_token", "value": "" },
+    { "key": "customer_id", "value": "" },
+    { "key": "admin_token", "value": "" },
+    { "key": "product_id", "value": "" },
+    { "key": "brand_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/register" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Customer\",\n  \"email\": \"test{{Math.floor(Math.random()*10000)}}@example.com\",\n  \"password\": \"password\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let res = {};\n",
+                  "try { res = pm.response.json(); } catch(e) {}\n",
+                  "if (res && res.token) {\n  pm.environment.set('customer_token', res.token);\n}\n",
+                  "if (res && res.customer && res.customer.id) {\n  pm.environment.set('customer_id', res.customer.id);\n}\n",
+                  "pm.test('Status is 200/201', function() {\n  pm.expect([200,201]).to.include(pm.response.code);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/login" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{customer_email}}\",\n  \"password\": \"password\"\n}"
+            },
+            "description": "Set 'customer_email' env var or login with a registered email"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let res = {};\ntry { res = pm.response.json(); } catch(e) {}\nif (res.token) pm.environment.set('customer_token', res.token);\nif (res.customer && res.customer.id) pm.environment.set('customer_id', res.customer.id);\npm.test('Status 200', function(){ pm.response.to.be.ok; });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/api/admin/login" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"secret123\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let res = {};\ntry { res = pm.response.json(); } catch(e) {}\nif (res.token) pm.environment.set('admin_token', res.token);\npm.test('Status 200', function(){ pm.response.to.be.ok; });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/products" }
+          },
+          "response": []
+        },
+        {
+          "name": "Show Product (id=1)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/products/1" }
+          },
+          "response": []
+        },
+        {
+          "name": "List Brands",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/brands" }
+          },
+          "response": []
+        },
+        {
+          "name": "List Subscriptions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/subscriptions" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer (auth:sanctum)",
+      "item": [
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/orders" }
+          },
+          "response": []
+        },
+        {
+          "name": "Show My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/customers/{{customer_id}}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/customers/{{customer_id}}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"updated{{Math.floor(Math.random()*10000)}}@example.com\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customer_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/orders" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"products\": [\n    { \"id\": {{product_id}}, \"quantity\": 2 }\n  ]\n  \n  /* If your controller requires it, add: \n  , \"customer_id\": {{customer_id}} */\n}"
+            },
+            "description": "Set product_id after admin creates a product. If your store() requires customer_id, include it."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin (auth:sanctum + is_admin)",
+      "item": [
+        {
+          "name": "Create Brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/brands" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Pets {{Math.floor(Math.random()*1000)}}\",\n  \"description\": \"Quality pet brand\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let res = {};\ntry { res = pm.response.json(); } catch(e) {}\nlet id = res?.data?.id || res?.id;\nif (id) pm.environment.set('brand_id', id);\npm.test('Created (201/200)', function(){ pm.expect([200,201]).to.include(pm.response.code); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/products" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dog Kibble {{Math.floor(Math.random()*1000)}}\",\n  \"price\": 1999,\n  \"stock\": 50,\n  \"brand_id\": {{brand_id}},\n  \"description\": \"High quality food\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let res = {};\ntry { res = pm.response.json(); } catch(e) {}\nlet id = res?.data?.id || res?.id;\nif (id) pm.environment.set('product_id', id);\npm.test('Created (201/200)', function(){ pm.expect([200,201]).to.include(pm.response.code); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/products/{{product_id}}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dog Kibble PRO\",\n  \"price\": 2499,\n  \"stock\": 60,\n  \"brand_id\": {{brand_id}},\n  \"description\": \"Improved formula\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/products/{{product_id}}" }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

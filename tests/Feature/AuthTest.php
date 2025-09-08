@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Models\User;
+use App\Models\Customer;
+use App\Models\Admin;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 
 class AuthTest extends TestCase
 {
@@ -20,23 +22,41 @@ class AuthTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $response->assertStatus(201)
-                 ->assertJsonStructure(['user', 'token']);
+        $response->assertStatus(201) // ✅ controller returns 201
+                 ->assertJsonStructure(['customer', 'token']);
     }
 
     /** @test */
     public function user_can_login()
     {
-        $customer = \App\Models\Customer::factory()->create([
-            'password' => bcrypt('secret123'),
+        $customer = Customer::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password'),
         ]);
 
         $response = $this->postJson('/api/login', [
-            'email' => $customer->email,
+            'email' => 'test@example.com',
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(200)
+                 ->assertJsonStructure(['customer', 'token']); // ✅ matches AuthController
+    }
+
+    /** @test */
+    public function admin_can_login()
+    {
+        $admin = Admin::factory()->create([
+            'email' => 'admin@example.com',
+            'password' => Hash::make('secret123'),
+        ]);
+
+        $response = $this->postJson('/api/admin/login', [
+            'email' => 'admin@example.com',
             'password' => 'secret123',
         ]);
 
         $response->assertStatus(200)
-                 ->assertJsonStructure(['user', 'token']);
+                 ->assertJsonStructure(['admin', 'token']); // ✅ matches AuthController
     }
 }

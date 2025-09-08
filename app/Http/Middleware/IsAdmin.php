@@ -4,25 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use App\Models\Admin;
 
-class IsAdmin
+class EnsureIsAdmin
 {
-    /**
-     * Handle an incoming request.
-     */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        // If using separate Admins table:
-        if ($request->user() && $request->user() instanceof \App\Models\Admin) {
+        // Check if logged-in user is an Admin model
+        if ($request->user() instanceof Admin) {
             return $next($request);
         }
 
-        // If using is_admin column in users table (alternative):
-        // if (auth()->user() && auth()->user()->is_admin) {
-        //     return $next($request);
-        // }
-
-        abort(403, 'Unauthorized');
+        return response()->json(['error' => 'Forbidden'], 403);
     }
 }
